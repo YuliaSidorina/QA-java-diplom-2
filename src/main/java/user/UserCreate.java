@@ -17,39 +17,15 @@ public class UserCreate {
 
     @Step("Отправить запрос на создание пользователя")
     public Response createUser(User user) {
-        return given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(user)
-                .when()
-                .post(CREATE_USER_PATH);
+        return createUserWithOptionalFields(user, true, true, true);
     }
 
-    @Step("Отправить запрос на создание пользователя без пароля")
-    public Response createUserWithoutPassword(User user) {
-        user.setPassword(null);
-        return given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(user)
-                .when()
-                .post(CREATE_USER_PATH);
-    }
+    @Step("Отправить запрос на создание пользователя с необязательными полями")
+    public Response createUserWithOptionalFields(User user, boolean includePassword, boolean includeEmail, boolean includeName) {
+        if (!includePassword) user.setPassword(null);
+        if (!includeEmail) user.setEmail(null);
+        if (!includeName) user.setName(null);
 
-    @Step("Отправить запрос на создание пользователя без электронной почты")
-    public Response createUserWithoutEmail(User user) {
-        user.setEmail(null);
-        return given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(user)
-                .when()
-                .post(CREATE_USER_PATH);
-    }
-
-    @Step("Отправить запрос на создание пользователя без имени")
-    public Response createUserWithoutName(User user) {
-        user.setName(null);
         return given()
                 .header("Content-type", "application/json")
                 .and()

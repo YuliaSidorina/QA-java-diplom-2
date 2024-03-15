@@ -5,30 +5,28 @@ import io.restassured.response.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import data.Constants;
 import data.User;
-import data.UserCredentials;
 import data.UserGenerator;
 import user.*;
 
+import static io.restassured.RestAssured.baseURI;
 import static org.apache.http.HttpStatus.*;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static data.Constants.USER_NOT_AUTH_ERROR;
-import static data.Constants.USER_EMAIL_EXISTS_ERROR;
 
 public class ChangeUserInfoTest {
     private User user;
     private User userSecond;
     private UserChange userChange;
-    private String accessToken;
-    private UserCredentials userCredentials;
     private UserAction userAction;
     private Response response;
-    private String userEmail;
-    private String userPassword;
 
     @Before
     public void setUp() {
-        user = UserGenerator.getUser();
+        baseURI = Constants.BASE_URI;
+        user = new User();
+        user.setEmail(UserGenerator.generateEmail());
+        user.setName(UserGenerator.generateName());
         userChange = new UserChange();
         userAction = new UserAction();
     }
@@ -63,7 +61,7 @@ public class ChangeUserInfoTest {
         response = userChange.changeEmailUserWithoutAuth(user);
         response.then()
                 .assertThat().body("success", equalTo(false))
-                .and().assertThat().body("message", equalTo(USER_NOT_AUTH_ERROR))
+                .and().assertThat().body("message", equalTo(Constants.USER_NOT_AUTH_ERROR))
                 .and().statusCode(SC_UNAUTHORIZED);
     }
 
@@ -73,7 +71,7 @@ public class ChangeUserInfoTest {
         response = userChange.changeNameUserWithoutAuth(user);
         response.then()
                 .assertThat().body("success", equalTo(false))
-                .and().assertThat().body("message", equalTo(USER_NOT_AUTH_ERROR))
+                .and().assertThat().body("message", equalTo(Constants.USER_NOT_AUTH_ERROR))
                 .and().statusCode(SC_UNAUTHORIZED);
     }
 
@@ -81,17 +79,18 @@ public class ChangeUserInfoTest {
     @DisplayName("Проверка изменения электронной почты пользователя на существующую с авторизацией")
     public void changeExistEmailWithAuthTest(){
         String emailFirstUser = user.getEmail();
-        userSecond = UserGenerator.getUser();
+        userSecond = new User();
+        userSecond.setEmail(UserGenerator.generateEmail());
+        userSecond.setName(UserGenerator.generateName());
 
         response = userChange.changeExistEmailWithAuth(user, userSecond, userSecond.getEmail());
         response.then()
                 .assertThat().body("success", equalTo(false))
-                .and().assertThat().body("message", equalTo(USER_EMAIL_EXISTS_ERROR))
+                .and().assertThat().body("message", equalTo(Constants.USER_EMAIL_EXISTS_ERROR))
                 .and().statusCode(SC_FORBIDDEN);
 
         user.setEmail(emailFirstUser);
         userAction.deleteUser(userAction.login(userSecond));
-
     }
 
     @After

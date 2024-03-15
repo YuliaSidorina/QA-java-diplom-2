@@ -6,9 +6,21 @@ public class UserGenerator {
     private static final Faker faker = new Faker();
 
     public static User getUser() {
-        String email = faker.internet().emailAddress();
-        String password = faker.internet().password();
-        String name = faker.name().fullName();
+        String email = generateEmail();
+        String password = generatePassword();
+        String name = generateName();
         return new User(email, password, name);
+    }
+
+    public static String generateEmail() {
+        return faker.internet().emailAddress();
+    }
+
+    public static String generatePassword() {
+        return faker.internet().password();
+    }
+
+    public static String generateName() {
+        return faker.name().fullName();
     }
 }

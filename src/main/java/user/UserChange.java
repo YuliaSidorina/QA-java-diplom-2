@@ -24,72 +24,48 @@ public class UserChange {
 
     @Step("Отправить запрос на изменение email пользователя с авторизацией")
     public Response changeEmailUserWithAuth(User user) {
-        response = userCreate.createUser(user);
-        userCredentials = response.as(UserCredentials.class);
-        accessToken = userCredentials.getAccessToken().replaceFirst("Bearer ", "");
-        userInfo = userCredentials.getUser();
+        createUserAndFetchData(user);
         userInfo.setEmail("test" + userInfo.getEmail());
-        return given()
-                .header("Content-type", "application/json")
-                .auth().oauth2(accessToken)
-                .and()
-                .body(userInfo)
-                .when()
-                .patch(UPDATE_USER_PATH);
+        return patchUserInfo();
     }
 
     @Step("Отправить запрос на изменение имени пользователя с авторизацией")
     public Response changeNameUserWithAuth(User user) {
-        response = userCreate.createUser(user);
-        userCredentials = response.as(UserCredentials.class);
-        accessToken = userCredentials.getAccessToken().replaceFirst("Bearer ", "");
-        userInfo = userCredentials.getUser();
+        createUserAndFetchData(user);
         userInfo.setName("test" + userInfo.getName());
-        return given()
-                .header("Content-type", "application/json")
-                .auth().oauth2(accessToken)
-                .and()
-                .body(userInfo)
-                .when()
-                .patch(UPDATE_USER_PATH);
+        return patchUserInfo();
     }
 
     @Step("Отправить запрос на изменение email пользователя без авторизации")
     public Response changeEmailUserWithoutAuth(User user) {
-        response = userCreate.createUser(user);
-        userCredentials = response.as(UserCredentials.class);
-        userInfo = userCredentials.getUser();
-        userInfo.setName("test" + userInfo.getName());
-        return given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(userInfo)
-                .when()
-                .patch(UPDATE_USER_PATH);
+        createUserAndFetchData(user);
+        userInfo.setEmail("test" + userInfo.getEmail());
+        return patchUserInfo();
     }
 
     @Step("Отправить запрос на изменение имени пользователя без авторизации")
     public Response changeNameUserWithoutAuth(User user) {
-        response = userCreate.createUser(user);
-        userCredentials = response.as(UserCredentials.class);
-        userInfo = userCredentials.getUser();
+        createUserAndFetchData(user);
         userInfo.setName("test" + userInfo.getName());
-        return given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(userInfo)
-                .when()
-                .patch(UPDATE_USER_PATH);
+        return patchUserInfo();
     }
 
     @Step("Отправить запрос на изменение существующего email с авторизацией")
     public Response changeExistEmailWithAuth(User user, User userSecond, String email) {
         userCreate.createUser(userSecond);
+        createUserAndFetchData(user);
+        userInfo.setEmail(userSecond.getEmail());
+        return patchUserInfo();
+    }
+
+    private void createUserAndFetchData(User user) {
         response = userCreate.createUser(user);
         userCredentials = response.as(UserCredentials.class);
-        accessToken = userCredentials.getAccessToken().replaceFirst("Bearer ", "");
         userInfo = userCredentials.getUser();
-        userInfo.setEmail(userSecond.getEmail());
+        accessToken = userCredentials.getAccessToken().replaceFirst("Bearer ", "");
+    }
+
+    private Response patchUserInfo() {
         return given()
                 .header("Content-type", "application/json")
                 .auth().oauth2(accessToken)

@@ -51,27 +51,4 @@ public class UserAction {
                 .when()
                 .post(LOGIN_USER_PATH);
     }
-
-    @Step("Отправка запроса на вход пользователя с неверным паролем")
-    public Response loginUserWithIncorrectPassword(User user) {
-        user.setPassword(user.getPassword() + "123");
-        return given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(user)
-                .when()
-                .post(LOGIN_USER_PATH);
-    }
-
-    @Step("Отправка запроса на вход пользователя с неверным email")
-    public Response loginUserWithIncorrectEmail(User user) {
-        user.setEmail("123" + user.getEmail());
-        return given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(user)
-                .when()
-                .post(LOGIN_USER_PATH);
-    }
-
 }
